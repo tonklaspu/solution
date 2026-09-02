@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChemConcentration Lab - ห้องแล็บคำนวณความเข้มข้นสารละลาย (%w/w, %w/v, %v/v)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons CDN -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 flex flex-col min-h-screen selection:bg-blue-600 selection:text-white">
+
+  <!-- Header & Navigation -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30">
+          <i class="ph-bold ph-flask text-white text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-400 via-cyan-300 to-indigo-300 bg-clip-text text-transparent">
+            ChemConcentration Lab
+          </h1>
+          <p class="text-xs text-slate-400 hidden sm:block">ห้องแล็บคำนวณและจำลองความเข้มข้นของสารละลายวิทยาศาสตร์</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex space-x-1 sm:space-x-2 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60">
+        <button id="tab-btn-lab" onclick="switchTab('lab')" class="nav-tab active px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center space-x-1.5">
+          <i class="ph-bold ph-test-tube"></i>
+          <span>ห้องทดลอง</span>
+        </button>
+        <button id="tab-btn-steps" onclick="switchTab('steps')" class="nav-tab px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-all flex items-center space-x-1.5">
+          <i class="ph-bold ph-calculator"></i>
+          <span>วิธีทำ</span>
+        </button>
+        <button id="tab-btn-quiz" onclick="switchTab('quiz')" class="nav-tab px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-all flex items-center space-x-1.5">
+          <i class="ph-bold ph-exam"></i>
+          <span>ฝึกทำโจทย์</span>
+        </button>
+        <button id="tab-btn-theory" onclick="switchTab('theory')" class="nav-tab px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-all flex items-center space-x-1.5">
+          <i class="ph-bold ph-book-open"></i>
+          <span>สรุปสูตร</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- TAB 1: INTERACTIVE LAB & SIMULATION -->
+    <section id="tab-lab" class="space-y-6">
+
+      <!-- Concentration Type Selector Banner -->
+      <div class="glass-card rounded-2xl p-4 sm:p-5 border border-slate-700/60">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div class="space-y-1">
+            <span class="text-xs font-semibold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+              <i class="ph-fill ph-check-circle"></i> เลือกหน่วยความเข้มข้นที่ต้องการศึกษา
+            </span>
+            <div class="flex flex-wrap gap-2 pt-1" id="type-selector-group">
+              <button onclick="setConcentrationType('w/w')" id="btn-type-ww" class="type-btn active px-4 py-2 rounded-xl text-sm font-semibold border border-blue-500 bg-blue-600/30 text-white shadow-md shadow-blue-500/20 transition-all flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-400"></span>
+                %w/w (มวล/มวล)
+              </button>
+              <button onclick="setConcentrationType('w/v')" id="btn-type-wv" class="type-btn px-4 py-2 rounded-xl text-sm font-semibold border border-slate-700 bg-slate-800 text-slate-300 hover:text-white hover:border-slate-600 transition-all flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+                %w/v (มวล/ปริมาตร)
+              </button>
+              <button onclick="setConcentrationType('v/v')" id="btn-type-vv" class="type-btn px-4 py-2 rounded-xl text-sm font-semibold border border-slate-700 bg-slate-800 text-slate-300 hover:text-white hover:border-slate-600 transition-all flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+                %v/v (ปริมาตร/ปริมาตร)
+              </button>
+            </div>
+          </div>
+
+          <!-- Calculation Mode Switcher -->
+          <div class="bg-slate-800/90 p-1.5 rounded-xl border border-slate-700 flex text-xs font-medium self-stretch sm:self-auto">
+            <button id="mode-calc" onclick="setCalculationMode('calculate')" class="flex-1 sm:flex-none px-3 py-1.5 rounded-lg bg-blue-600 text-white transition-all">
+              คำนวณหา %
+            </button>
+            <button id="mode-prep" onclick="setCalculationMode('prepare')" class="flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all">
+              เตรียมสารละลาย
+            </button>
+          </div>
+        </div>
+
+        <!-- Formula Definition Banner -->
+        <div id="formula-quick-banner" class="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm text-slate-300">
+          <div class="flex items-center gap-2">
+            <span class="bg-blue-500/20 text-blue-300 px-2.5 py-0.5 rounded-md font-mono text-xs border border-blue-500/30">สูตร</span>
+            <span id="formula-text-display" class="font-mono-math text-blue-200 font-medium">
+              %w/w = [มวลตัวละลาย (g) ÷ มวลสารละลาย (g)] × 100%
+            </span>
+          </div>
+          <span id="formula-hint" class="text-slate-400 text-xs italic">
+            *มวลสารละลาย = มวลตัวละลาย + มวลตัวทำละลาย
+          </span>
+        </div>
+      </div>
+
+      <!-- MAIN 2-COLUMN WORKSPACE -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- LEFT COLUMN: CONTROLS & INPUTS (7 Cols) -->
+        <div class="lg:col-span-7 space-y-6">
+
+          <!-- Chemical Preset Selector -->
+          <div class="glass-card rounded-2xl p-5 border border-slate-700/60 space-y-4">
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                <i class="ph-fill ph-atom text-blue-400"></i> เลือกสารเคมีจำลองในบทเรียน
+              </label>
+              <span id="chemical-formula-badge" class="font-mono text-xs bg-slate-800 text-cyan-300 px-2 py-0.5 rounded border border-slate-700">
+                CuSO₄
+              </span>
+            </div>
+
+            <!-- Chemical Pill Swatches -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="chemical-grid">
+              <!-- Dynamically populated via JS -->
+            </div>
+
+            <!-- Chemical Info Note -->
+            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-start gap-3 text-xs text-slate-300">
+              <i class="ph-fill ph-info text-blue-400 text-base shrink-0 mt-0.5"></i>
+              <p id="chemical-desc-text">
+                ผลึกสีฟ้าสดใส เมื่อละลายในน้ำจะได้สารละลายสีฟ้าใส นิยมใช้ในแล็บทดลองเรื่องการละลายและตกผลึก
+              </p>
+            </div>
+          </div>
+
+          <!-- INPUT CONTROLS PANEL -->
+          <div class="glass-card rounded-2xl p-5 border border-slate-700/60 space-y-5">
+            
+            <!-- Standard Mode: Calculate % -->
+            <div id="panel-calculate-inputs" class="space-y-5">
+
+              <!-- Solute Input (ตัวละลาย) -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label id="solute-label" class="text-sm font-medium text-slate-200 flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block"></span>
+                    ปริมาณตัวละลาย (Solute)
+                  </label>
+                  <div class="flex items-center gap-1.5">
+                    <input type="number" id="solute-num" value="10" min="0.1" max="500" step="0.5" 
+                      class="w-24 px-2.5 py-1 text-right bg-slate-900 border border-slate-700 rounded-lg text-sm text-cyan-300 font-mono-math focus:outline-none focus:border-cyan-500">
+                    <select id="solute-unit" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-300 focus:outline-none">
+                      <option value="g">กรัม (g)</option>
+                      <option value="kg">กิโลกรัม (kg)</option>
+                      <option value="mg">มิลลิกรัม (mg)</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- Solute Slider -->
+                <input type="range" id="solute-slider" min="0.5" max="100" value="10" step="0.5" class="w-full">
+                <div class="flex justify-between text-[11px] text-slate-400">
+                  <span>น้อย (0.5)</span>
+                  <span id="solute-slider-val" class="font-mono text-cyan-300">10 g</span>
+                  <span>มาก (100)</span>
+                </div>
+              </div>
+
+              <!-- Liquid Mode Toggle: Solvent vs Total Solution -->
+              <div class="pt-2 border-t border-slate-800">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs text-slate-400">กำหนดปริมาณโดย:</span>
+                  <div class="flex bg-slate-900 p-0.5 rounded-lg border border-slate-700 text-xs">
+                    <button id="toggle-solvent" onclick="setLiquidMode('solvent')" class="px-2.5 py-1 rounded-md bg-blue-600 text-white font-medium transition-all">
+                      ตัวทำละลาย (น้ำ)
+                    </button>
+                    <button id="toggle-solution" onclick="setLiquidMode('solution')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-slate-200 transition-all">
+                      สารละลายรวม
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Liquid Input (ตัวทำละลาย หรือ สารละลายรวม) -->
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <label id="liquid-label" class="text-sm font-medium text-slate-200 flex items-center gap-2">
+                      <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
+                      ปริมาณตัวทำละลาย (Solvent - น้ำ)
+                    </label>
+                    <div class="flex items-center gap-1.5">
+                      <input type="number" id="liquid-num" value="190" min="1" max="2000" step="5" 
+                        class="w-24 px-2.5 py-1 text-right bg-slate-900 border border-slate-700 rounded-lg text-sm text-blue-300 font-mono-math focus:outline-none focus:border-blue-500">
+                      <select id="liquid-unit" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-300 focus:outline-none">
+                        <option value="g">กรัม (g)</option>
+                        <option value="kg">กิโลกรัม (kg)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <!-- Liquid Slider -->
+                  <input type="range" id="liquid-slider" min="10" max="500" value="190" step="5" class="w-full">
+                  <div class="flex justify-between text-[11px] text-slate-400">
+                    <span>10</span>
+                    <span id="liquid-slider-val" class="font-mono text-blue-300">190 g</span>
+                    <span>500</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Prepare Mode: Calculate Solute from Target % -->
+            <div id="panel-prepare-inputs" class="hidden space-y-5">
+              <!-- Target % Input -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-sm font-medium text-slate-200 flex items-center gap-2">
+                    <i class="ph-fill ph-target text-amber-400"></i> ความเข้มข้นที่ต้องการ (%)
+                  </label>
+                  <div class="flex items-center gap-1.5">
+                    <input type="number" id="prep-target-percent" value="10" min="0.1" max="99" step="0.5" 
+                      class="w-24 px-2.5 py-1 text-right bg-slate-900 border border-slate-700 rounded-lg text-sm text-amber-300 font-mono-math focus:outline-none">
+                    <span class="text-xs text-slate-300 font-bold">%</span>
+                  </div>
+                </div>
+                <input type="range" id="prep-percent-slider" min="0.5" max="50" value="10" step="0.5" class="w-full">
+              </div>
+
+              <!-- Target Volume / Mass -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label id="prep-volume-label" class="text-sm font-medium text-slate-200 flex items-center gap-2">
+                    <i class="ph-fill ph-flask text-blue-400"></i> ปริมาตรสารละลายที่ต้องการเตรียม
+                  </label>
+                  <div class="flex items-center gap-1.5">
+                    <input type="number" id="prep-target-volume" value="250" min="10" max="2000" step="10" 
+                      class="w-24 px-2.5 py-1 text-right bg-slate-900 border border-slate-700 rounded-lg text-sm text-blue-300 font-mono-math focus:outline-none">
+                    <select id="prep-volume-unit" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-300">
+                      <option value="mL">มิลลิลิตร (mL)</option>
+                      <option value="L">ลิตร (L)</option>
+                    </select>
+                  </div>
+                </div>
+                <input type="range" id="prep-volume-slider" min="20" max="1000" value="250" step="10" class="w-full">
+              </div>
+            </div>
+
+            <!-- Quick Real-life Presets -->
+            <div class="pt-2 border-t border-slate-800">
+              <span class="text-xs font-semibold text-slate-400 block mb-2">⚡ ตัวอย่างในชีวิตจริงที่พบบ่อย (คลิกเพื่อทดลอง):</span>
+              <div class="flex flex-wrap gap-1.5">
+                <button onclick="loadPresetExample('saline')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 transition-all">
+                  💧 น้ำเกลือล้างแผล (0.9% w/v)
+                </button>
+                <button onclick="loadPresetExample('alcohol')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 transition-all">
+                  🧴 แอลกอฮอล์ฆ่าเชื้อ (70% v/v)
+                </button>
+                <button onclick="loadPresetExample('syrup')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 transition-all">
+                  🍯 น้ำเชื่อมเข้มข้น (25% w/w)
+                </button>
+                <button onclick="loadPresetExample('vinegar')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 transition-all">
+                  🥗 น้ำส้มสายชู (5% v/v)
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- LIVE RESULT HIGHLIGHT CARD -->
+          <div class="glass-card rounded-2xl p-5 border border-blue-500/30 relative overflow-hidden pulse-glow">
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div>
+                <span class="text-xs uppercase tracking-wider text-slate-400 font-semibold">ผลการคำนวณความเข้มข้น</span>
+                <div class="flex items-baseline gap-2 mt-1">
+                  <span id="result-percentage-display" class="text-4xl sm:text-5xl font-bold font-mono-math text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-white">
+                    5.00
+                  </span>
+                  <span id="result-unit-display" class="text-xl font-bold text-cyan-300 font-mono">
+                    %w/w
+                  </span>
+                </div>
+              </div>
+
+              <!-- Status Badge (เจือจาง / ปานกลาง / เข้มข้น / อิ่มตัว) -->
+              <div id="status-badge-container">
+                <span id="concentration-status-tag" class="badge-tag bg-blue-500/20 text-blue-300 border border-blue-500/40">
+                  เจือจาง (Dilute)
+                </span>
+              </div>
+            </div>
+
+            <!-- Meaning Interpretation -->
+            <p id="result-interpretation" class="text-xs sm:text-sm text-slate-300 mt-3 pt-3 border-t border-slate-800/80 leading-relaxed">
+              หมายความว่า ในสารละลาย 100 กรัม จะมีตัวละลายอยู่ 5.00 กรัม และมีตัวทำละลายอยู่ 95.00 กรัม
+            </p>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN: INTERACTIVE VISUAL SIMULATION BEAKER (5 Cols) -->
+        <div class="lg:col-span-5 space-y-4">
+
+          <div class="glass-beaker-container rounded-3xl p-4 sm:p-6 flex flex-col items-center relative shadow-2xl">
+            
+            <!-- Beaker Header Status -->
+            <div class="w-full flex items-center justify-between mb-2 px-2 text-xs">
+              <span class="text-slate-400 flex items-center gap-1.5 font-medium">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                ภาพจำลองบีกเกอร์เสมือนจริง (Real-time)
+              </span>
+              <span id="beaker-chem-name" class="font-semibold text-cyan-400">
+                CuSO₄ (จุนสี)
+              </span>
+            </div>
+
+            <!-- Canvas Element -->
+            <div class="w-full relative flex justify-center py-2">
+              <canvas id="beakerCanvas" width="340" height="420" class="max-w-full h-auto drop-shadow-2xl"></canvas>
+            </div>
+
+            <!-- Interactive Action Toolbar -->
+            <div class="w-full grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-800">
+              <button onclick="stirSolution()" class="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 flex flex-col items-center gap-1 transition-all active:scale-95">
+                <i class="ph-bold ph-arrows-clockwise text-blue-400 text-base"></i>
+                <span>คนสาร (Stir)</span>
+              </button>
+              <button onclick="quickAddWater(50)" class="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 flex flex-col items-center gap-1 transition-all active:scale-95">
+                <i class="ph-bold ph-drop text-cyan-400 text-base"></i>
+                <span>+ น้ำ 50 mL</span>
+              </button>
+              <button onclick="quickAddSolute(5)" class="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 flex flex-col items-center gap-1 transition-all active:scale-95">
+                <i class="ph-bold ph-plus-circle text-indigo-400 text-base"></i>
+                <span>+ ตัวละลาย</span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Solution Breakdown Mini-Card -->
+          <div class="glass-card rounded-2xl p-4 border border-slate-700/60 grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="p-2 rounded-xl bg-slate-800/60">
+              <span class="text-slate-400 block text-[11px]">ตัวละลาย</span>
+              <span id="mini-solute-val" class="font-bold text-cyan-300 font-mono-math">10 g</span>
+            </div>
+            <div class="p-2 rounded-xl bg-slate-800/60">
+              <span class="text-slate-400 block text-[11px]">ตัวทำละลาย</span>
+              <span id="mini-solvent-val" class="font-bold text-blue-300 font-mono-math">190 g</span>
+            </div>
+            <div class="p-2 rounded-xl bg-slate-800/60">
+              <span class="text-slate-400 block text-[11px]">สารละลายรวม</span>
+              <span id="mini-solution-val" class="font-bold text-white font-mono-math">200 g</span>
+            </div>
+          </div>
+
+          <!-- Color/Particle Visual Observation Tip -->
+          <div class="p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 text-xs text-indigo-200 flex items-start gap-2.5">
+            <i class="ph-fill ph-lightbulb text-amber-400 text-lg shrink-0"></i>
+            <div>
+              <span class="font-bold text-amber-300">สังเกตการเปลี่ยนแปลง:</span>
+              <p class="mt-0.5 text-indigo-200/90 leading-relaxed">
+                เมื่อเพิ่มปริมาณตัวละลาย สีของสารละลายจะ <b class="text-white">เข้มขึ้น</b> และอนุภาคจะ <b class="text-white">หนาแน่นขึ้น</b> หากเติมน้ำ (เจือจาง) สีจะจางลงและระดับของเหลวจะสูงขึ้น
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- TAB 2: STEP-BY-STEP CALCULATION & THEORY -->
+    <section id="tab-steps" class="hidden space-y-6">
+      <div class="glass-card rounded-2xl p-6 border border-slate-700/60 space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-400">
+              <i class="ph-bold ph-calculator text-2xl"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-white">แสดงขั้นตอนการคำนวณอย่างละเอียด</h2>
+              <p class="text-xs text-slate-400">วิธีทำแบบตรวจคำตอบสำหรับนักเรียน พร้อมการแทนค่าในสูตร</p>
+            </div>
+          </div>
+          <button onclick="switchTab('lab')" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg text-slate-300 transition-all flex items-center gap-1">
+            <i class="ph-bold ph-arrow-left"></i> กลับไปห้องทดลอง
+          </button>
+        </div>
+
+        <!-- Dynamic Steps Container -->
+        <div id="steps-container" class="space-y-4">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Formula Reference Sheet -->
+        <div class="mt-8 pt-6 border-t border-slate-800 space-y-4">
+          <h3 class="text-sm font-semibold text-cyan-300 flex items-center gap-2">
+            <i class="ph-fill ph-bookmark-simple"></i> สรุปสูตรคำนวณความเข้มข้นทั้ง 3 รูปแบบ
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/70 space-y-2">
+              <span class="text-xs font-bold text-blue-400">%w/w (ร้อยละโดยมวลต่อมวล)</span>
+              <p class="text-xs text-slate-300 font-mono-math bg-slate-900/80 p-2 rounded border border-slate-800">
+                %w/w = (มวลตัวละลาย ÷ มวลสารละลาย) × 100
+              </p>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                นิยมใช้กับสารละลายที่เป็นของแข็งในของแข็ง (เช่น โลหะผสม) หรือของแข็งในของเหลวที่มีการชั่งน้ำหนักแน่นอน
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/70 space-y-2">
+              <span class="text-xs font-bold text-cyan-400">%w/v (ร้อยละโดยมวลต่อปริมาตร)</span>
+              <p class="text-xs text-slate-300 font-mono-math bg-slate-900/80 p-2 rounded border border-slate-800">
+                %w/v = [มวลตัวละลาย (g) ÷ ปริมาตรสารละลาย (cm³)] × 100
+              </p>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                นิยมใช้บ่อยที่สุดในห้องแล็บเคมี เมื่อละลายของแข็ง (g) ในของเหลวแล้วปรับปริมาตรเป็นลูกบาศก์เซนติเมตร (mL)
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/70 space-y-2">
+              <span class="text-xs font-bold text-indigo-400">%v/v (ร้อยละโดยปริมาตรต่อปริมาตร)</span>
+              <p class="text-xs text-slate-300 font-mono-math bg-slate-900/80 p-2 rounded border border-slate-800">
+                %v/v = (ปริมาตรตัวละลาย ÷ ปริมาตรสารละลาย) × 100
+              </p>
+              <p class="text-[11px] text-slate-400 leading-relaxed">
+                นิยมใช้กับสารละลายที่ทั้งตัวละลายและตัวทำละลายเป็นของเหลว เช่น แอลกอฮอล์ล้างมือ, น้ำส้มสายชู
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 3: QUIZ & PRACTICE MODE -->
+    <section id="tab-quiz" class="hidden space-y-6">
+      <div class="glass-card rounded-2xl p-6 border border-slate-700/60 space-y-6">
+        
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-600/30 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+              <i class="ph-bold ph-exam text-2xl"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-white">แบบฝึกหัดคำนวณความเข้มข้นสารละลาย</h2>
+              <p class="text-xs text-slate-400">สุ่มโจทย์ท้าทาย ฝึกคิดเลข และตรวจความถูกต้องได้ทันที</p>
+            </div>
+          </div>
+
+          <!-- Score Tracker -->
+          <div class="flex items-center gap-4 bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700">
+            <div class="text-center">
+              <span class="text-[10px] uppercase text-slate-400 block">คะแนนสะสม</span>
+              <span id="quiz-score" class="font-bold text-emerald-400 text-base font-mono-math">0</span>
+            </div>
+            <div class="w-px h-6 bg-slate-700"></div>
+            <div class="text-center">
+              <span class="text-[10px] uppercase text-slate-400 block">ทำไปแล้ว</span>
+              <span id="quiz-total" class="font-bold text-slate-200 text-base font-mono-math">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Question Box -->
+        <div class="p-6 rounded-2xl bg-slate-900/90 border border-slate-700/80 space-y-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+              โจทย์ข้อปัจจุบัน
+            </span>
+            <button onclick="newQuizQuestion()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-all">
+              <i class="ph-bold ph-arrows-clockwise"></i> สุ่มโจทย์ใหม่
+            </button>
+          </div>
+
+          <p id="quiz-question-text" class="text-base sm:text-lg text-slate-100 font-medium leading-relaxed">
+            กำลังโหลดโจทย์...
+          </p>
+
+          <!-- Input Answer Area -->
+          <div class="pt-2 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div class="flex items-center gap-2">
+              <input type="number" id="quiz-user-answer" step="0.01" placeholder="พิมพ์คำตอบตัวเลข..." 
+                class="w-48 px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white font-mono-math focus:outline-none focus:border-emerald-500 text-sm">
+              <span id="quiz-answer-unit" class="text-sm text-slate-300 font-medium">%</span>
+            </div>
+            <button onclick="checkQuizAnswer()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-600/30 transition-all flex items-center gap-1.5">
+              <i class="ph-bold ph-check"></i> ตรวจคำตอบ
+            </button>
+          </div>
+
+          <!-- Quiz Feedback Box -->
+          <div id="quiz-feedback-box" class="hidden p-4 rounded-xl border text-sm leading-relaxed">
+            <!-- Dynamic feedback message & explanation -->
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 4: THEORY & KNOWLEDGE BASE -->
+    <section id="tab-theory" class="hidden space-y-6">
+      <div class="glass-card rounded-2xl p-6 border border-slate-700/60 space-y-6">
+        
+        <div class="border-b border-slate-800 pb-4">
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="ph-fill ph-book-open text-cyan-400"></i> สรุปบทเรียน: สารละลายและความเข้มข้น
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">เนื้อหาตามหลักสูตรวิทยาศาสตร์ระดับชั้นมัธยมศึกษา (สสวท.)</p>
+        </div>
+
+        <!-- Theory Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- Card 1: องค์ประกอบของสารละลาย -->
+          <div class="p-5 rounded-2xl bg-slate-800/50 border border-slate-700/70 space-y-3">
+            <h3 class="text-sm font-bold text-cyan-300 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-cyan-400"></span> 1. สารละลาย (Solution) คืออะไร?
+            </h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              สารละลายเป็น <b>สารเนื้อเดียว</b> ที่ประกอบด้วยสารตั้งแต่ 2 ชนิดขึ้นไปมารวมกัน โดยแบ่งองค์ประกอบเป็น:
+            </p>
+            <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside">
+              <li><b>ตัวทำละลาย (Solvent):</b> สารที่มีสถานะเดียวกับสารละลาย หรือสารที่มีปริมาณมากกว่า</li>
+              <li><b>ตัวละลาย (Solute):</b> สารที่มีสถานะต่างจากสารละลาย หรือสารที่มีปริมาณน้อยกว่า</li>
+            </ul>
+            <div class="p-2.5 rounded-lg bg-slate-900/80 text-[11px] text-cyan-200 border border-slate-800 font-mono-math">
+              มวลสารละลาย = มวลตัวละลาย + มวลตัวทำละลาย
+            </div>
+          </div>
+
+          <!-- Card 2: สารละลายอิ่มตัว -->
+          <div class="p-5 rounded-2xl bg-slate-800/50 border border-slate-700/70 space-y-3">
+            <h3 class="text-sm font-bold text-amber-300 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span> 2. สารละลายอิ่มตัวและสภาพการละลายได้
+            </h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              <b>สารละลายอิ่มตัว (Saturated Solution)</b> คือ สารละลายที่ตัวละลายไม่สามารถละลายในตัวทำละลายได้อีกแล้ว ณ อุณหภูมิขณะนั้น
+            </p>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              หากเติมตัวละลายเพิ่มเข้าไปอีก ตัวละลายส่วนเกินจะไม่ละลายและจะ <b>ตกตะกอนนอนก้นบีกเกอร์</b> (ตามที่จำลองไว้ในภาพบีกเกอร์)
+            </p>
+          </div>
+
+          <!-- Card 3: การแปลงหน่วย -->
+          <div class="p-5 rounded-2xl bg-slate-800/50 border border-slate-700/70 space-y-3">
+            <h3 class="text-sm font-bold text-emerald-300 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span> 3. การแปลงหน่วยที่จำเป็นต้องรู้
+            </h3>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="p-2 bg-slate-900/80 rounded border border-slate-800">
+                <span class="text-emerald-400 font-semibold block">มวล:</span>
+                <span class="font-mono text-slate-300">1 kg = 1,000 g</span><br>
+                <span class="font-mono text-slate-300">1 g = 1,000 mg</span>
+              </div>
+              <div class="p-2 bg-slate-900/80 rounded border border-slate-800">
+                <span class="text-emerald-400 font-semibold block">ปริมาตร:</span>
+                <span class="font-mono text-slate-300">1 L = 1,000 mL</span><br>
+                <span class="font-mono text-slate-300">1 mL = 1 cm³</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: ข้อแตกต่างสำคัญ -->
+          <div class="p-5 rounded-2xl bg-slate-800/50 border border-slate-700/70 space-y-3">
+            <h3 class="text-sm font-bold text-indigo-300 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-indigo-400"></span> 4. ข้อควรระวังในการสอบ!
+            </h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              ⚠ <b>โจทย์มักหลอก:</b> ระวังความแตกต่างระหว่าง <u>มวลตัวทำละลาย (น้ำ)</u> กับ <u>มวลสารละลายรวม</u>!
+            </p>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              เช่น ละลายเกลือ 10 g ในน้ำ 90 g $\rightarrow$ สารละลายรวมคือ 100 g ไม่ใช่ 90 g ดังนั้น %w/w = (10/100) × 100 = 10% (ไม่ใช่ 10/90)
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-900/60 py-5 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span>🧪 ChemConcentration Lab — สื่อการเรียนรู้วิทยาศาสตร์เชิงโต้ตอบสำหรับนักเรียน</span>
+      <span>พัฒนาด้วย HTML5 • Tailwind CSS • Vanilla JavaScript</span>
+    </div>
+  </footer>
+
+  <!-- Application Scripts -->
+  <script src="js/chemicals.js"></script>
+  <script src="js/calculator.js"></script>
+  <script src="js/simulation.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

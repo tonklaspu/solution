@@ -1,0 +1,124 @@
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --primary-glow: rgba(59, 130, 246, 0.5);
+}
+
+body {
+  font-family: 'Prompt', sans-serif;
+  background-color: #0f172a;
+  color: #f8fafc;
+  min-height: 100vh;
+}
+
+.font-mono-math {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Glassmorphism elements */
+.glass-card {
+  background: rgba(30, 41, 59, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-card-light {
+  background: rgba(51, 65, 85, 0.45);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-beaker-container {
+  background: radial-gradient(circle at 50% 30%, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95));
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5), 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Slider Custom Styling */
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #334155;
+  border-radius: 9999px;
+  height: 8px;
+  outline: none;
+  transition: background 0.2s;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+  border: 2px solid #ffffff;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.9);
+}
+
+/* Pulse Glow Animation */
+@keyframes softPulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.45);
+  }
+}
+
+.pulse-glow {
+  animation: softPulse 3s infinite ease-in-out;
+}
+
+/* Formula Highlight Box */
+.formula-box {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+  border-left: 4px solid #3b82f6;
+}
+
+/* Tab Active Indicator */
+.nav-tab.active {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+/* Tooltip & Badges */
+.badge-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+}
